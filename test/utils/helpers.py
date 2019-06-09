@@ -1,11 +1,16 @@
 import json
+from flask import Flask
+from app.__common import DbInstance
 
 
-def setup_test_env():
-    raise NotImplemented
+def setup_test_env(app: Flask):
+    try:
+        pass
+    except Exception as ex:
+        pass
 
 
-def teardown_test_env():
+def teardown_test_env(app: Flask):
     raise NotImplemented
 
 
