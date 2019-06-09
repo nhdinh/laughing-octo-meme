@@ -2,3 +2,12 @@ Flask==1.0.3
 Flask-RESTful==0.3.7
 pytest==4.6.2
 pytest-pspec==0.0.3
+flask-sqlalchemy==2.4.0
+flask-marshmallow==0.10.1
+marshmallow-sqlalchemy==0.16.3
+passlib==1.7.1
+flask-httpauth==3.3.0
+flask-script==2.0.6
+pyaml==19.4.1
+flask-migrate==2.5.2
+pymysql==0.9.3
