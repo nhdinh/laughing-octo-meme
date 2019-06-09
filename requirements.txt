@@ -1,0 +1,4 @@
+Flask==1.0.3
+Flask-RESTful==0.3.7
+pytest==4.6.2
+pytest-pspec==0.0.3
