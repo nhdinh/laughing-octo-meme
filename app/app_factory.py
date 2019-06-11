@@ -66,7 +66,9 @@ def create_app(config_name: str) -> Flask:
     api = Api(app)
     api.add_resource(HelloWorld, '/')
     from app.__common.auth_blueprint import auth_blueprint_registry
+    from app.signal_blueprint import signal_blueprint_registry
     app.register_blueprint(auth_blueprint_registry(), url_prefix=app.config['URL_PREFIX'])
+    app.register_blueprint(signal_blueprint_registry(), url_prefix=app.config['URL_PREFIX'])
 
     return app
 

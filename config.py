@@ -1,6 +1,7 @@
 # app/config.py
 
 import os
+from sys import platform
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 
@@ -13,8 +14,9 @@ class Config:
     URL_PREFIX = '/api'
 
     # server config
+    # SERVER_NAME = 'localhost' + ".localdomain" if platform == "linux" or platform == "linux2" else '' # remove server_name due to flask will return 404 always
     HOST = '127.0.0.1'
-    PORT = 5000
+    PORT = 5555
 
     # SqlAlchemy config
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'

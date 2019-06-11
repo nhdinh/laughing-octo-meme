@@ -41,7 +41,7 @@ class User(db.Model, AddUpdateDelete):
         if re.search(r"[ !#$%&'()*+,-./[\\\]^_`{|}~" + r'"]', password) is None:
             return 'The password must include at least one symbol', False
 
-        self.hashed_password = password_context.encrypt(password)
+        self.hashed_password = password_context.hash(password)
         return '', True
 
     def __init__(self, name):

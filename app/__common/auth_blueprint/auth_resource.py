@@ -1,12 +1,15 @@
-from flask import g, request
+from flask import g, request, current_app
 from flask_restful import Resource
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.__common import DbInstance
-from app.__common.helpers import PaginationHelper
-from app.__common.http_status import HttpStatus
+from app.__common import PaginationHelper, HttpStatus
 from .auth import AuthRequiredResource, auth
 from .user_models import User, UserSchema
+
+from app.app_factory import __create_logger
+
+logger = __create_logger()
 
 
 @auth.verify_password
@@ -55,6 +58,7 @@ class UserListResource(Resource):
         name = request_dict['name']
         existing_user = User.query.filter_by(name=name).first()
         if existing_user is not None:
+            logger.debug('An user with the same name "{username}" already exists'.format(username=name))
             response = {'user': 'An user with the same name already exists'}
             return response, HttpStatus.HTTP_400_BAD_REQUEST
 
