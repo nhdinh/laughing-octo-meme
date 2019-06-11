@@ -8,6 +8,6 @@ class TestWhenNoUserExists:
 
 
 class TestWhenUserExists:
-    def test_getting_resource_shall_return_code_200(self, test_client, create_auth):
-        response = test_client.get('/')
+    def test_getting_resource_shall_return_code_200(self, create_user, test_client, create_authorization_header):
+        response = test_client.get('/', headers=create_authorization_header)
         assert response.status_code == HttpStatus.HTTP_200_OK
