@@ -7,8 +7,11 @@ language: python
 
 # Mention the python version in which travis will run the app
 python:
+  - "3.4"
   - "3.5"
+  - "3.5-dev"  # 3.5 development branch
   - "3.6"
+  - "3.6-dev"  # 3.6 development branch
 
 # command to install dependencies in the requirements file
 # You can also install the coverage here to avoid it being in the requirements file

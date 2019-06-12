@@ -1,30 +1,69 @@
 import json
 from base64 import b64encode
+from config import basedir
+import logging, logging.config
+import yaml, os
 
 
 def get_json_from_response(response):
+    """
+    Load json from response
+    :param response: the response object as a input
+    :return: json string
+    """
     response_string = response.data.decode('utf-8')
 
     return json.loads(response_string)
 
 
 def get_header_value(header_key, response_headers):
+    """
+    Get value by the header's key
+    :param header_key:
+    :param response_headers:
+    :return:
+    """
     try:
         return next(h[1] for h in response_headers.items() if h[0] == header_key)
     except StopIteration:
         return None
 
 
-def get_accept_content_type_headers():
+def create_accept_content_type_headers():
+    """
+    Create accept content-type header
+    :return:
+    """
     return {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
     }
 
 
-def get_authentication_headers(username, password):
-    authentication_headers = get_accept_content_type_headers()
-    authentication_headers['Authorization'] = 'Basic ' + b64encode((username + ':' + password).encode('utf-8')).decode(
-        'utf-8')
+def create_authentication_headers(username, password):
+    auth_headers = create_accept_content_type_headers()
+    auth_headers['Authorization'] = 'Basic ' + b64encode((username + ':' + password).encode('utf-8')). \
+        decode('utf-8')
 
-    return authentication_headers
+    return auth_headers
+
+
+def create_logger(default_path='/logging.conf.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
+    """
+    Setup logging configuration and create logger
+    """
+    path = basedir + default_path
+    value = os.getenv(env_key, None)
+
+    if value:
+        path = value
+    if os.path.exists(path):
+        with open(path, 'rt') as f:
+            config = yaml.safe_load(f.read())
+        logging.config.dictConfig(config)
+    else:
+        logging.basicConfig(level=default_level)
+
+    logger = logging.getLogger(__name__)
+
+    return logger

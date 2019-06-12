@@ -1,9 +1,9 @@
 # app/message_blueprint/category_resources.py
 
-from flask import jsonify, make_response, url_for
-from flask_restful import Resource, request, marshal_with
+from flask import jsonify, url_for
+from flask_restful import request
 from .signal_models import CategorySchema, Category, db
-from app.__common import HttpStatus, PaginationHelper, AuthRequiredResource
+from app.__common import HttpStatus, AuthRequiredResource
 from sqlalchemy.exc import SQLAlchemyError
 from app.app_factory import __create_logger
 
@@ -11,7 +11,7 @@ logger = __create_logger()
 
 
 class CategoryResource(AuthRequiredResource):
-    __category_schema: CategorySchema = CategorySchema()
+    __category_schema = CategorySchema()
 
     def get(self, identifier):
         category = Category.query.get_or_404(identifier)
@@ -50,7 +50,7 @@ class CategoryResource(AuthRequiredResource):
 
         try:
             category.delete(category)
-            return HttpStatus.HTTP_204_NO_CONTENT, {'Location': url_for('signal_api.categorylistresource.')}
+            return HttpStatus.HTTP_204_NO_CONTENT, {'Location': url_for('signal_api.categorylistresource')}
         except SQLAlchemyError as e:
             db.session.rollback()
             resp = {"error": str(e)}
@@ -58,7 +58,7 @@ class CategoryResource(AuthRequiredResource):
 
 
 class CategoryListResource(AuthRequiredResource):
-    __category_schema: CategorySchema = CategorySchema()
+    __category_schema = CategorySchema()
 
     def get(self):
         categories = Category.query.all()

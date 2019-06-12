@@ -3,22 +3,27 @@ import json
 import pytest
 from flask import g, url_for
 
-from app.__common import DbInstance
+from app.__common import DbInstance, HttpStatus
 from app.app_factory import create_app
-from test.utils.helpers import get_accept_content_type_headers
-from base64 import b64decode, b64encode
+from test.utils.helpers import create_accept_content_type_headers, create_logger
+from base64 import b64encode
+
+logger = create_logger()
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def app(request):
     app = create_app('testing')
     app.debug = True
     app.testing = True
 
-    db = DbInstance.get()
+    logger.info('-----------')
+    logger.info('Setup *App* & begin testing session')
 
+    db = DbInstance.get()
     # setup testing env
     with app.app_context():
+        logger.info('Init db and create all schemas')
         db.init_app(app)
         db.create_all()
 
@@ -30,6 +35,7 @@ def app(request):
 
     # teardown testing env
     def teardown():
+        logger.info('Drop database & App teardown')
         db.session.close()
         db.drop_all()
         ctx.pop()
@@ -39,15 +45,26 @@ def app(request):
     return app
 
 
-@pytest.fixture
-def test_client(app):
+@pytest.fixture(scope='session')
+def test_client(app, request):
+    logger.info('Setup *Test_client*')
     test_client = app.test_client()
+
+    yield test_client
+
+    def teardown():
+        logger.info('*Test_client teardown*')
+
+    request.addfinalizer(teardown)
     return test_client
 
 
-@pytest.fixture
-def create_user(app, test_client):
+@pytest.fixture(scope='session')
+def create_auth_user(app, test_client, request):
+    response = None
     with app.app_context(), app.test_request_context():
+        logger.info('Setup *Create_user&')
+
         if 'test_user' not in g:
             g.test_user_username = 'the_user'
             g.test_user_password = 'P@ssw0rd!'
@@ -55,21 +72,35 @@ def create_user(app, test_client):
         data = {'name': g.test_user_username, 'password': g.test_user_password}
 
         url = url_for('auth_api.userlistresource', _external=False)
-        response = test_client.post(url, headers=get_accept_content_type_headers(), data=json.dumps(data))
+        response = test_client.post(url, headers=create_accept_content_type_headers(), data=json.dumps(data))
 
-        return response
+    def teardown():
+        # No need to teardown as all the schema and data will be drop in app_teardown
+        logger.info('*Create_user* teardown')
+
+    request.addfinalizer(teardown)
+
+    return response
 
 
-@pytest.fixture
-def create_authorization_header(app, test_client):
-    with app.app_context(), app.test_request_context():
-        if 'test_user' not in g:
-            g.test_user_username = 'the_user'
-            g.test_user_password = 'P@ssw0rd!'
+@pytest.fixture(scope='session')
+def create_authorization_headers(app, test_client, create_auth_user):
+    create_auth_response = create_auth_user
 
-        authentication_headers = get_accept_content_type_headers()
-        authentication_headers['Authorization'] = 'Basic ' + b64encode(
-            (g.test_user_username + ':' + g.test_user_password).encode('utf-8')).decode(
-            'utf-8')
+    if create_auth_response is not None and create_auth_response.status_code == HttpStatus.HTTP_201_CREATED:
+        with app.app_context(), app.test_request_context():
+            logger.info('Stating create auth headers and return')
 
-        return authentication_headers
+            if 'test_user' not in g:
+                g.test_user_username = 'the_user'
+                g.test_user_password = 'P@ssw0rd!'
+
+            auth_headers = create_accept_content_type_headers()
+            auth_headers['Authorization'] = 'Basic ' + b64encode(
+                (g.test_user_username + ':' + g.test_user_password).encode('utf-8')).decode(
+                'utf-8')
+
+            return auth_headers
+    else:
+        logger.debug('Create_auth_user failed so that cannot construct authorization header')
+        return None

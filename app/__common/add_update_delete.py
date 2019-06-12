@@ -1,3 +1,4 @@
+import sys
 from flask_marshmallow import Marshmallow
 from flask_sqlalchemy import SQLAlchemy
 
@@ -6,7 +7,7 @@ class DbInstance:
     """
     Singleton class to create instance of SQLAlchemy
     """
-    _db: SQLAlchemy = None
+    _db = None
 
     @classmethod
     def get(cls) -> SQLAlchemy:
@@ -20,8 +21,7 @@ class MarshmallowInstance:
     """
     Singleton class to create instance of Marshmallow
     """
-    _ma: Marshmallow = None
-
+    _ma = None
     @classmethod
     def get(cls) -> Marshmallow:
         if cls._ma is None:
@@ -35,7 +35,7 @@ class AddUpdateDelete:
     Base class provided the action of adding, updating and deleting
     """
 
-    db: SQLAlchemy = DbInstance.get()
+    db = DbInstance.get()
 
     def add(self, resource):
         self.db.session.add(resource)

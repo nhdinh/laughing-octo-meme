@@ -1,8 +1,7 @@
 # app/message_blueprint/message_resources.py
 
-from flask import request, jsonify, make_response, url_for
-from flask_restful import Resource, marshal_with
-from .signal_models import Message, MessageSchema, Category, CategorySchema
+from flask import request, jsonify, url_for
+from .signal_models import Message, MessageSchema, Category
 from app.__common import DbInstance, HttpStatus, PaginationHelper, AuthRequiredResource
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -10,7 +9,7 @@ db = DbInstance.get()
 
 
 class MessageResource(AuthRequiredResource):
-    __message_schema: MessageSchema = MessageSchema()
+    __message_schema = MessageSchema()
 
     def get(self, identifier):
         message = Message.query.get_or_404(identifier)
@@ -75,7 +74,7 @@ class MessageResource(AuthRequiredResource):
 
 
 class MessageListResource(AuthRequiredResource):
-    __message_schema: MessageSchema = MessageSchema()
+    __message_schema = MessageSchema()
 
     def get(self):
         pagination_helper = PaginationHelper(
