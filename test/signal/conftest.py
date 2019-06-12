@@ -1,6 +1,6 @@
 import pytest, json
 from flask import url_for
-from test.utils.helpers import create_logger
+from test.utils.helpers import create_logger, get_id_from_created_response
 
 logger = create_logger()
 
@@ -19,12 +19,10 @@ def create_single_category(app, create_authorization_headers, test_client, reque
     logger.info('Create category name="{name}"'.format(name=category))
     with app.app_context(), app.test_request_context():
         url = url_for('signal_api.categorylistresource', _external=False)
-        create_response = test_client.post(url, data=json.dumps({"name": category}),
-                                           headers=create_authorization_headers)
+        created_response = test_client.post(url, data=json.dumps({"name": category}),
+                                            headers=create_authorization_headers)
 
-        response_string = create_response.data.decode('utf-8')
-        returned_list = json.loads(response_string)
-        created_category_id = returned_list['id']
+        created_category_id = get_id_from_created_response(created_response)
 
     yield create_single_category
 
@@ -55,12 +53,10 @@ def create_categories(app, create_authorization_headers, test_client, request):
         for category in categories:
             logger.info('Create category name="{name}"'.format(name=category))
             url = url_for('signal_api.categorylistresource', _external=False)
-            create_response = test_client.post(url, data=json.dumps({"name": category}),
-                                               headers=create_authorization_headers)
+            created_response = test_client.post(url, data=json.dumps({"name": category}),
+                                                headers=create_authorization_headers)
 
-            response_string = create_response.data.decode('utf-8')
-            returned_list = json.loads(response_string)
-            created_category_id = returned_list['id']
+            created_category_id = get_id_from_created_response(created_response)
 
         category_indice.append(created_category_id)
 

@@ -1,9 +1,7 @@
 from flask import url_for
 from app.__common import HttpStatus
-from test.utils.helpers import create_authentication_headers
 from test.utils.assertions import assert_json_response, assert_header_value
-from flask import g
-import pytest, json
+import json
 
 
 class TestGetActionForSignalCategoriesEndpoint:

@@ -3,6 +3,7 @@ from base64 import b64encode
 from config import basedir
 import logging, logging.config
 import yaml, os
+from app.__common import HttpStatus
 
 
 def get_json_from_response(response):
@@ -46,6 +47,21 @@ def create_authentication_headers(username, password):
         decode('utf-8')
 
     return auth_headers
+
+
+def get_id_from_created_response(response):
+    """
+    Get id from a 'created' response
+    :param response: a 'created' response
+    :return: a created object's id
+    """
+    if response.status_code == HttpStatus.HTTP_201_CREATED:
+        response_json_string = response.data.decode('utf-8')
+        created_object = json.loads(response_json_string)
+
+        return int(created_object['id'])
+
+    return None
 
 
 def create_logger(default_path='/logging.conf.yaml', default_level=logging.INFO, env_key='LOG_CFG'):
