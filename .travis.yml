@@ -28,7 +28,8 @@ install:
 
  # Another command/method to run tests
 script:
-  - pytest
+  #- pytest
+  - aloe
 
 # This returns the coverage and let's coveralls know the coverage percent.
 # Note that travis will build your system and get the coverage.
