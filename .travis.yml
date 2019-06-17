@@ -19,14 +19,17 @@ python:
 install:
   - pip install -r requirements.txt
 
+before_script:
+  - mkdir logs
 
-# command to run tests
-# This is the script that enables travis to run the tests
-# There are many ways to do depending on how you want travis to run and get you coverage
-#script: true
-#  - nosetests --with-coverage --coverage report
 
- # Another command/method to run tests
+  # command to run tests
+  # This is the script that enables travis to run the tests
+  # There are many ways to do depending on how you want travis to run and get you coverage
+  #script: true
+  #  - nosetests --with-coverage --coverage report
+
+  # Another command/method to run tests
 script:
   - pytest
 
