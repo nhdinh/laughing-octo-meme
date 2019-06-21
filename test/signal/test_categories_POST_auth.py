@@ -8,13 +8,13 @@ logger = create_logger()
 
 
 class TestCreatingCategory:
-    def test_creating_category_should_return_code_201(self, app, create_authorization_headers, test_client, request):
+    def test_creating_category_should_return_code_201(self, app, __bdd_create_auth_headers, test_client, request):
         category = 'category_name'
 
         with app.app_context(), app.test_request_context():
             url = url_for('signal_api.categorylistresource', _external=False)
 
-            created_response = test_client.post(url, headers=create_authorization_headers,
+            created_response = test_client.post(url, headers=__bdd_create_auth_headers,
                                                 data=json.dumps({'name': category}))
 
             def teardown():
@@ -23,24 +23,24 @@ class TestCreatingCategory:
 
                     logger.info('Delete category')
                     url = url_for('signal_api.categoryresource', identifier=created_category_id, _external=False)
-                    test_client.delete(url, headers=create_authorization_headers)
+                    test_client.delete(url, headers=__bdd_create_auth_headers)
 
             request.addfinalizer(teardown)
 
             assert created_response.status_code == HttpStatus.HTTP_201_CREATED
 
-    def test_creating_category_should_return_created_id(self, app, create_authorization_headers, test_client, request):
+    def test_creating_category_should_return_created_id(self, app, __bdd_create_auth_headers, test_client, request):
         category = 'category_name'
 
         with app.app_context(), app.test_request_context():
             url = url_for('signal_api.categorylistresource', _external=False)
 
-            created_response = test_client.post(url, headers=create_authorization_headers,
+            created_response = test_client.post(url, headers=__bdd_create_auth_headers,
                                                 data=json.dumps({'name': category}))
             id = get_id_from_created_response(created_response)
 
             get_url = url_for('signal_api.categoryresource', identifier=id, _external=False)
-            get_response = test_client.get(get_url, headers=create_authorization_headers)
+            get_response = test_client.get(get_url, headers=__bdd_create_auth_headers)
 
             def teardown():
                 with app.app_context(), app.test_request_context():
@@ -48,7 +48,7 @@ class TestCreatingCategory:
 
                     logger.info('Delete category')
                     url = url_for('signal_api.categoryresource', identifier=created_category_id, _external=False)
-                    test_client.delete(url, headers=create_authorization_headers)
+                    test_client.delete(url, headers=__bdd_create_auth_headers)
 
             request.addfinalizer(teardown)
 

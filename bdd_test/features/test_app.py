@@ -12,8 +12,13 @@ def test_application_when_authorized():
     pass
 
 
-@scenario('test_app.feature', 'Test categories endpoint when authorized')
-def test_categories_endpoint_when_authorized():
+@scenario('test_app.feature', 'Test categories endpoint with GET method when authorized')
+def test_categories_get_endpoint_when_authorized():
+    pass
+
+
+@scenario('test_app.feature', 'Test categories endpoint with POST method when authorized')
+def test_categories_post_endpoint_when_authorized():
     pass
 
 
@@ -26,8 +31,8 @@ def given_unauthorized_user(world):
 
 
 @given(r'I am authorized user')
-def given_authorized_user(world, create_authorization_headers):
-    headers = create_authorization_headers
+def given_authorized_user(world, __bdd_create_auth_headers):
+    headers = __bdd_create_auth_headers
     world['request_headers'] = headers
 
     return headers
@@ -40,7 +45,8 @@ def request_the_resource(world, test_client, resource_endpoint, method):
     if method == 'GET':
         response = test_client.get(resource_endpoint, headers=auth_headers)
     elif method == 'POST':
-        response = test_client.post(resource_endpoint, headers=auth_headers)
+        import json
+        response = test_client.post(resource_endpoint, headers=auth_headers, data=json.dumps({'name': 'category'}))
     else:
         response = None
 

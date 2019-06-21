@@ -4,6 +4,9 @@ from marshmallow import validate, fields
 from passlib.apps import custom_app_context as password_context
 
 from app.__common import DbInstance, MarshmallowInstance, AddUpdateDelete
+from datetime import timedelta, datetime
+import jwt
+from flask import current_app
 
 db = DbInstance.get()
 
@@ -12,6 +15,8 @@ class User(db.Model, AddUpdateDelete):
     """
     Model of User
     """
+    __tablename__ = 't_users'
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
 
@@ -43,6 +48,42 @@ class User(db.Model, AddUpdateDelete):
 
         self.hashed_password = password_context.hash(password)
         return '', True
+
+    def generate_token(self):
+        """
+        Generate the access token
+        :return:
+        """
+        try:
+            payload = {
+                'exp': datetime.utcnow() + timedelta(minutes=5),
+                'iat': datetime.utcnow(),
+                'sub': self.id
+            }
+
+            jwt_string = jwt.encode(
+                payload, current_app.config.get('SECRET_KEY'),
+                algorithm='HS256'
+            )
+
+            return jwt_string
+        except Exception as ex:
+            return str(ex)
+
+    @staticmethod
+    def decode_token(token):
+        """
+        Decode the access token from the Authorization header
+        :param token:
+        :return:
+        """
+        try:
+            payload = jwt.decode(token, current_app.config.get('SECRET_KEY'))
+            return payload['sub']
+        except jwt.ExpiredSignatureError:
+            return 'Expired token'
+        except jwt.InvalidTokenError:
+            return 'Invalid token'
 
     def __init__(self, name):
         self.name = name

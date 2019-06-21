@@ -12,3 +12,4 @@ pyaml==19.4.1
 flask-migrate==2.5.2
 pymysql==0.9.3
 pytest-bdd==3.1.0
+pyjwt==1.7.1

@@ -84,8 +84,8 @@ def create_auth_user(app, test_client, request):
 
 
 @pytest.fixture(scope='session')
-def create_authorization_headers(app, test_client, create_auth_user):
-    create_auth_response = create_auth_user
+def create_authorization_headers(app, test_client, __bdd_create_auth_user):
+    create_auth_response = __bdd_create_auth_user
 
     if create_auth_response is not None and create_auth_response.status_code == HttpStatus.HTTP_201_CREATED:
         with app.app_context(), app.test_request_context():

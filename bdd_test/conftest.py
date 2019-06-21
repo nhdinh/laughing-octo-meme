@@ -12,12 +12,12 @@ import json
 logger = __bdd_create_logger()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def world():
     return {}
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def app(request):
     app = create_app('testing')
     app.debug = True
@@ -49,7 +49,7 @@ def app(request):
     return app
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='class')
 def test_client(app, request):
     logger.info('Setup *Test_client*')
     test_client = app.test_client()
@@ -63,8 +63,8 @@ def test_client(app, request):
     return test_client
 
 
-@pytest.fixture(scope='session')
-def create_auth_user(app, test_client, request):
+@pytest.fixture(scope='class')
+def __bdd_create_auth_user(app, test_client, request):
     with app.app_context(), app.test_request_context():
         logger.info('Setup *Create_user&')
 
@@ -86,9 +86,9 @@ def create_auth_user(app, test_client, request):
     return response
 
 
-@pytest.fixture(scope='session')
-def create_authorization_headers(app, test_client, create_auth_user):
-    create_auth_response = create_auth_user
+@pytest.fixture(scope='class')
+def __bdd_create_auth_headers(app, test_client, __bdd_create_auth_user):
+    create_auth_response = __bdd_create_auth_user
 
     if create_auth_response is not None and create_auth_response.status_code == HttpStatus.HTTP_201_CREATED:
         with app.app_context(), app.test_request_context():
@@ -107,3 +107,30 @@ def create_authorization_headers(app, test_client, create_auth_user):
     else:
         logger.debug('Create_auth_user failed so that cannot construct authorization header')
         return None
+
+
+@pytest.fixture(scope='class')
+def __bdd_request_resource(app, test_client):
+    def __request_resource(endpoint=None, method='GET', auth=False, payload=None):
+        # return None if resource is not specified
+        if endpoint is None or endpoint == '':
+            return None
+
+        # create the request headers
+        with app.app_context(), app.test_request_context():
+            headers = __bdd_create_request_headers() if auth is False else __bdd_create_auth_headers()
+
+            # do method and return the response
+            endpoint = str(endpoint)
+
+            if str(method).lower() == 'get':
+                response = test_client.get(endpoint, headers=headers)
+            elif str(method).lower() == 'post':
+                response = test_client.post(endpoint, headers=headers, data=json.dumps(payload))
+            else:
+                # TODO: Need to finalize with PUT, PATCH and DELETE
+                response = None
+
+            return response
+
+    return __request_resource

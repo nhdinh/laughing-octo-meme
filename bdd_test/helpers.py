@@ -2,7 +2,6 @@ from config import basedir
 import os
 import logging, logging.config
 import yaml, json
-from base64 import b64encode
 from app.__common import HttpStatus
 
 

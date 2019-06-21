@@ -1,4 +1,4 @@
-from flask import g, request, current_app
+from flask import g, request
 from flask_restful import Resource
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -40,7 +40,7 @@ class UserListResource(Resource):
             request,
             query=User.query,
             resource_for_url='auth_api.userlistresource',
-            key_name='results',
+            key_name='users',
             schema=self.__user_schema)
         result = pagination_helper.paginate_query()
         return result
@@ -48,7 +48,7 @@ class UserListResource(Resource):
     def post(self):
         request_dict = request.get_json()
         if not request_dict:
-            response = {'user': 'No input data provided'}
+            response = {'message': 'No input data provided'}
             return response, HttpStatus.HTTP_400_BAD_REQUEST
 
         errors = self.__user_schema.validate(request_dict)
@@ -59,7 +59,7 @@ class UserListResource(Resource):
         existing_user = User.query.filter_by(name=name).first()
         if existing_user is not None:
             logger.debug('An user with the same name "{username}" already exists'.format(username=name))
-            response = {'user': 'An user with the same name already exists'}
+            response = {'message': 'An user with the same name already exists'}
             return response, HttpStatus.HTTP_400_BAD_REQUEST
 
         try:
@@ -70,6 +70,7 @@ class UserListResource(Resource):
                 user.add(user)
                 query = User.query.get(user.id)
                 result = self.__user_schema.dump(query).data
+                result['auth_token'] = user.generate_token().decode()
                 return result, HttpStatus.HTTP_201_CREATED
             else:
                 return {"error": error_message}, HttpStatus.HTTP_400_BAD_REQUEST

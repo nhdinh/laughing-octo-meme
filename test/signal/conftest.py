@@ -6,7 +6,7 @@ logger = create_logger()
 
 
 @pytest.fixture(scope='function')
-def create_single_category(app, create_authorization_headers, test_client, request):
+def create_single_category(app, __bdd_create_auth_headers, test_client, request):
     """
     Create single category
     :param app: fixture
@@ -20,7 +20,7 @@ def create_single_category(app, create_authorization_headers, test_client, reque
     with app.app_context(), app.test_request_context():
         url = url_for('signal_api.categorylistresource', _external=False)
         created_response = test_client.post(url, data=json.dumps({"name": category}),
-                                            headers=create_authorization_headers)
+                                            headers=__bdd_create_auth_headers)
 
         created_category_id = get_id_from_created_response(created_response)
 
@@ -30,14 +30,14 @@ def create_single_category(app, create_authorization_headers, test_client, reque
         with app.app_context(), app.test_request_context():
             logger.info('Delete category')
             url = url_for('signal_api.categoryresource', identifier=created_category_id, _external=False)
-            test_client.delete(url, headers=create_authorization_headers)
+            test_client.delete(url, headers=__bdd_create_auth_headers)
 
     request.addfinalizer(teardown)
     return
 
 
 @pytest.fixture(scope='function')
-def create_categories(app, create_authorization_headers, test_client, request):
+def create_categories(app, __bdd_create_auth_headers, test_client, request):
     """
     Create 3 categories fixture
     :param app: fixture
@@ -54,7 +54,7 @@ def create_categories(app, create_authorization_headers, test_client, request):
             logger.info('Create category name="{name}"'.format(name=category))
             url = url_for('signal_api.categorylistresource', _external=False)
             created_response = test_client.post(url, data=json.dumps({"name": category}),
-                                                headers=create_authorization_headers)
+                                                headers=__bdd_create_auth_headers)
 
             created_category_id = get_id_from_created_response(created_response)
 
@@ -67,7 +67,7 @@ def create_categories(app, create_authorization_headers, test_client, request):
             logger.info('Delete categories')
             for cat_id in category_indice:
                 url = url_for('signal_api.categoryresource', identifier=cat_id, _external=False)
-                test_client.delete(url, headers=create_authorization_headers)
+                test_client.delete(url, headers=__bdd_create_auth_headers)
 
     request.addfinalizer(teardown)
     return
